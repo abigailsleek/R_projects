@@ -1,0 +1,122 @@
+---
+title: "Dataquest Project: Exploratory Visualization For Forest Fire Data"
+author: Nneamaka Abigail Chalokwu
+date: 9th july 2020
+output: html_notebook
+---
+
+```{r}
+
+```
+Load the necessary libraries
+```{r load libraries}
+# load packages
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(purrr)
+```
+
+
+```{r}
+```
+import the dataset
+```{r import data and save as a dataframe}
+forest_fire_data <- read.csv("forestfires.csv")
+```
+Group the data by month and days of the week
+```{r}
+#group the data by months
+forest_data_month <- forest_fire_data %>%
+  group_by(month) %>%
+  summarize(total_no_fires = n())
+#visualize using barchart
+ggplot(data = forest_data_month,
+       aes(x = month, y =total_no_fires)) + geom_bar(stat = "identity") + 
+       theme(panel.background = element_rect(fill = "azure")) + labs(title = "Monthly Record of Forest Fire")
+```
+```{r}
+#groupby days of the week
+forest_data_days <- forest_fire_data %>% 
+  group_by(day) %>%
+  summarise(total_no_fire = n())
+#visualise using barchart
+ggplot(data = forest_data_days,
+       aes(x = day, y = total_no_fire)) + 
+       geom_bar(stat = "identity") +
+       theme(panel.background = element_rect(fill = "cornsilk")) + labs(title = "Daily Record Of Forest Fire")
+
+```
+```{r}
+```
+
+rearrange the months and days in a chronological order
+```{r}
+# rearrange the months and day column in a chronological order
+forest_fire_data <- forest_fire_data %>%
+  mutate(month = factor(month, levels = c("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")),
+         day = factor(day, levels = c("sun", "mon", "tue", "wed", "thu", "fri", "sat")))
+
+```
+Regroup and visualize the rearranged data
+```{r group and visualize the reodered data}
+forest_data_month <- forest_fire_data %>%
+  group_by(month) %>%
+  summarize(total_no_fires = n())
+
+ggplot(data = forest_data_month,
+       aes(x = month, y =total_no_fires)) + geom_bar(stat = "identity") + 
+       theme(panel.background = element_rect(fill = "thistle")) + labs(title = "Monthly Record of Forest Fire")
+```
+```{r}
+forest_data_days <- forest_fire_data %>% 
+  group_by(day) %>%
+  summarise(total_no_fire = n())
+
+ggplot(data = forest_data_days,
+       aes(x = day, y = total_no_fire)) + 
+       geom_bar(stat = "identity") +
+       theme(panel.background = element_rect(fill = "coral")) + labs(title = "Daily Record Of Forest Fire")
+
+
+```
+create a function to visualize using boxplots
+```{r}
+create_boxplot <- function(x,y) {
+  ggplot(data = forest_fire_data) +
+  aes_string(x = x, y = y) +
+    geom_boxplot() +
+    theme(panel.background = element_rect(fill = "biege"))
+}
+```
+Assign variable names to X and Y
+```{r}
+x_month_var <- names(forest_fire_data)[3]
+x_day_var <- names(forest_fire_data)[4]
+y_var <- names(forest_fire_data)[5:12]
+```
+Apply map() function to the variables created above
+```{r}
+Box_for_month <- map2(x_month_var, y_var, create_boxplot)
+Box_for_day <- map2(x_day_var, y_var, create_boxplot)
+```
+create a function for scatter plots
+```{r}
+scatter_plots <- function(x,y) {
+  ggplot(data = forest_fire_data) +
+    aes_string(x = x, y = y) +
+    geom_point() +
+    theme(panel.background = element_rect(fill = "grey"))
+}
+```
+Assign variables to X and Y
+```{r}
+x_var <- names(forest_fire_data)[5:12]
+y_var <- names(forest_fire_data)[13]
+
+```
+Apply Map() to the variables
+```{r}
+the_scatters <- map2(x_var, y_var, scatter_plots)
+```
+
