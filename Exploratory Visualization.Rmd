@@ -86,7 +86,7 @@ create_boxplot <- function(x,y) {
   ggplot(data = forest_fire_data) +
   aes_string(x = x, y = y) +
     geom_boxplot() +
-    theme(panel.background = element_rect(fill = "biege"))
+    theme(panel.background = element_rect(fill = "white"))
 }
 ```
 Assign variable names to X and Y
@@ -106,7 +106,7 @@ scatter_plots <- function(x,y) {
   ggplot(data = forest_fire_data) +
     aes_string(x = x, y = y) +
     geom_point() +
-    theme(panel.background = element_rect(fill = "grey"))
+    theme(panel.background = element_rect(fill = "white"))
 }
 ```
 Assign variables to X and Y
