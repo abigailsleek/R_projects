@@ -1,0 +1,171 @@
+---
+title: "Dataquest project:Investigating COVID-19 Virus Trends"
+author: "Nneamaka Abigail Chalokwu"
+date: 8/08/20
+output: html_notebook
+---
+
+
+A pneumonia of unknown cause detected in Wuhan, China was first internationally reported from China on 31 December 2019. Today we know this virus as Coronavirus. COVID-19 which stands for COronaVIrus Disease is the disease caused by this virus. Since then, the world has been engaged in the fight against this pandemic. Several measures have therefore been taken to "flatten the curve". We have consequently experienced social distancing and many people have passed away as well.
+
+In the solidarity to face this unprecedented global crisis, several organizations did not hesitate to share several datasets allowing the conduction of several kinds of analysis in order to understand this pandemic.
+
+It is natural for us to analyze these datasets by ourselves to answer questions since we cannot always rely on the news, and we are data scientists.
+
+This analysis tries to provide an answer to this question: **Which countries have had the highest number of positive cases against the number of tests?**
+
+**Step1:Understanding the Data**
+```{r}
+library(readr)
+covid_df <- read.csv("covid19.csv")
+```
+observe the data to understand the dimension, structure, column names, and get a general summary of the data.
+```{r}
+#get the dimension of the data
+dim(covid_df)
+```
+```{r}
+#check out the column names of the data
+vector_cols <- colnames(covid_df)
+vector_cols
+```
+```{r}
+#showing the first few rows of the data
+head(covid_df)
+```
+```{r}
+#Display summary of the data using glimpse() function
+library(tibble)
+
+glimpse(covid_df)
+```
+From this observation, we deduce that this data consists of 14 **columns** and 10903 **rows**.We also see that the data structure of the vector_cols variable represents a character.
+The glimpse () function makes it possible to see every column in a data frame.And it always shows the underlying data, even when applied to a remote data source.
+
+**Step2: Isolating rows Needed**
+```{r}
+library(dplyr)
+```
+```{r}
+#filter the province_state column to select results with "All States" values, and remove the column
+covid_df_all_states <- covid_df %>%
+  filter(Province_State == "All States") %>%
+  select(-Province_State)
+```
+We can remove the `Province_State` column without loosing any information because it only contains `All states`(which is not needed) after the filtering process. 
+
+**Step3: Isolating columns Needed**
+```{r}
+covid_df_all_states_daily <- covid_df_all_states %>%
+  select(Date, Country_Region, active, hospitalizedCurr, daily_tested, daily_positive)
+
+head(covid_df_all_states_daily)
+```
+**Step4: Extracting the Top Ten countries in the number of tested cases**
+```{r}
+covid_df_all_states_daily_sum <- covid_df_all_states_daily %>%
+  group_by(Country_Region) %>%
+  summarise(tested = sum(daily_tested),
+            positive = sum(daily_positive),
+            active = sum(active),
+            hospitalized = sum(hospitalizedCurr)) %>%
+  arrange(desc(tested))
+
+covid_df_all_states_daily_sum
+```
+```{r}
+covid_top_10 <- head(covid_df_all_states_daily_sum, 10)
+
+covid_top_10
+```
+
+**Step5: Identifying the Highest Positive Against Tested Cases**
+```{r}
+#creating vectors
+countries <- covid_top_10$Country_Region
+tested_cases <- covid_top_10$tested
+positive_cases <- covid_top_10$positive
+active_cases <- covid_top_10$active
+hospitalized_cases <-covid_top_10$hospitalized
+```
+```{r}
+#naming the vectors created using names() function
+names(positive_cases) <- countries
+names(tested_cases) <- countries
+names(active_cases) <- countries
+names(hospitalized_cases) <- countries
+```
+```{r}
+#identifying positive against tested cases
+positive_cases
+
+sum(positive_cases)
+
+mean(positive_cases)
+
+positive_cases/sum(positive_cases)
+
+```
+```{r}
+positive_cases/tested_cases
+```
+```{r}
+#creating a vector with the top three positive tested countries
+positive_tested_top_3 <- c("United Kingdom" = 0.11, "United States" = 0.1,"Turkey" = 0.08)
+```
+**Step6: Keeping relevant Information**
+```{r}
+#creating vectors
+united_kingdom <- c(0.11, 1473672, 166909, 0, 0)
+united_states <- c(0.10, 17282363, 1877179, 0, 0)
+turkey <- c(0.08, 2031192, 163941, 2980960, 0)
+```
+```{r}
+#creating a matrix
+covid_matrix <- rbind(united_kingdom,united_states,turkey)
+```
+```{r}
+#rename the columns of the matrix
+names(covid_matrix)<- c("Ratio", "tested", "positive", "active", "hospitalized")
+
+covid_matrix
+```
+**Step7: Putting it all together**
+```{r}
+question <- "Which countries have had the highest number of positive cases against the number of tests?"
+
+```
+```{r}
+answer <- c("Positive tested cases" = positive_tested_top_3)
+
+```
+
+
+```{r}
+#creating a list of the dataframes set used 
+dataset_list <- list(
+  original_data = covid_df,
+  all_states = covid_df_all_states,
+  daily = covid_df_all_states_daily,
+  top_10 = covid_top_10
+)
+```
+```{r}
+#creating a list of matrix used
+matrices_list <- list(covid_matrix)
+
+#creating a list of vectors used
+vector_list <- list(vector_cols, countries)
+
+#creating a data structure that contain the lists above
+data_structure_list <- list("dataframe" = dataset_list, "matrix" = matrices_list, "vector" = vector_list)
+
+```
+```{r}
+covid_analysis_list <- list(question, answer, data_structure_list)
+covid_analysis_list[[2]]
+```
+**conclusion**
+
+
+From our analysis, it is clear that these countries United Kingdom, United States, and Turkey have had the highest number of positive cases against the number of test cases.
