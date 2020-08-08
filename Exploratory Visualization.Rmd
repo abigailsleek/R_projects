@@ -82,11 +82,11 @@ ggplot(data = forest_data_days,
 ```
 create a function to visualize using boxplots
 ```{r}
-create_boxplot <- function(x,y) {
+box_plots <- function(x,y) {
   ggplot(data = forest_fire_data) +
   aes_string(x = x, y = y) +
     geom_boxplot() +
-    theme(panel.background = element_rect(fill = "biege"))
+    theme(panel.background = element_rect(fill = "white"))
 }
 ```
 Assign variable names to X and Y
@@ -97,8 +97,8 @@ y_var <- names(forest_fire_data)[5:12]
 ```
 Apply map() function to the variables created above
 ```{r}
-Box_for_month <- map2(x_month_var, y_var, create_boxplot)
-Box_for_day <- map2(x_day_var, y_var, create_boxplot)
+Box_for_month <- map2(x_month_var, y_var,box_plots)
+Box_for_day <- map2(x_day_var, y_var,box_plots)
 ```
 create a function for scatter plots
 ```{r}
@@ -106,7 +106,7 @@ scatter_plots <- function(x,y) {
   ggplot(data = forest_fire_data) +
     aes_string(x = x, y = y) +
     geom_point() +
-    theme(panel.background = element_rect(fill = "grey"))
+    theme(panel.background = element_rect(fill = "white"))
 }
 ```
 Assign variables to X and Y
