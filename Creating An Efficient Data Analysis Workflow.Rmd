@@ -1,0 +1,103 @@
+---
+title: "Dataquest Project: Creating An Efficient Data Analysis Workflow"
+author: "Nneamaka Abigail Chalokwu"
+date: 10/08/20
+output: html_notebook
+---
+
+
+**step1: Getting familar with the data**
+```{r}
+
+library(readr)
+
+reviews_df <- read_csv("book_reviews.csv")
+```
+```{r}
+#how big is the dataset?
+dim(reviews_df)
+
+#how many columns does it have?
+colnames(reviews_df)
+
+#what is the data type?
+for (col in colnames(reviews_df)) {
+  typeof(reviews_df[[col]])
+}
+
+```
+```{r}
+for (col in colnames(reviews_df)) {
+  print("These are the unique values in the column:")
+  print(col)
+  print(unique(reviews_df[[col]]))
+  print("")
+}
+```
+
+The `book` column refers to title of books published. The `review` column represents the rating of the book given by readers.The `price column represents the cost of each book.The `state` column represents the state where the purchase was made.
+
+**Step2: Handling missing data**
+```{r}
+#checking out out individual columns in the dataframes for null values
+#is.na(reviews_df$book)
+```
+```{r}
+#is.na(reviews_df$review)
+```
+```{r}
+#writing a more efficient code to check the whole dataframe for null values.
+
+for (r in reviews_df){
+  print(!is.na(reviews_df))
+}
+```
+It is obvious that the `reviews` column has quite a number of null values.Next step is to clean this column of the null values.
+```{r}
+clean_review_df <- reviews_df %>%
+  filter(!is.na(review))
+
+dim(clean_review_df)
+
+clean_review_df
+```
+Looking at the dimension of the new dataframe, it is clear that `206` rows containing null values in the `review` column were dropped.This new dataframe now has `1794` rows and `4` columns.
+
+**Step3: Dealing with inconsistent labels**
+```{r}
+#What are all the states that are present in the dataset?
+#there are four states; florida, texas,califonia and Newyork.
+clean_review_df <- clean_review_df %>%
+  mutate(
+    state = case_when(
+      state == "California" ~ "CA",
+      state == "New York" ~ "NY",
+      state == "Texas" ~ "TX",
+      state == "Florida" ~ "FL",
+      TRUE ~ state # ignore cases where it's already postal code
+    )
+  )
+```
+
+**Step4: Transforming the Review Data**
+```{r}
+clean_review_df <- clean_review_df %>%
+  mutate(review_num = case_when(
+      review == "Poor" ~ 1,
+      review == "Fair" ~ 2,
+      review == "Good" ~ 3,
+      review == "Great" ~ 4,
+      review == "Excellent" ~ 5),
+      is_high_review = if_else(review_num >= 4, TRUE, FALSE))
+```
+```{r}
+clean_review_df
+```
+**Step 5:Analyzing the Data**
+```{r}
+ clean_review_df %>% 
+  group_by(book) %>%
+  summarise(most_sold = n()) %>%
+  arrange(-most_sold)
+```
+From this analysis,although the top most purchased books are almost in the same range, the most sold book is *Fundamentals of R For Beginners*, and the least sold book is *R Made Easy*.
